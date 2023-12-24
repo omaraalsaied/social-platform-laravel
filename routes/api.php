@@ -18,7 +18,10 @@ use Illuminate\Support\Facades\Auth;
 Route::group(['prefix' => 'v1/users/'], function() {
     Route::post('login', 'App\Http\Controllers\api\v1\AuthController@login');
     Route::post('register', 'App\Http\Controllers\api\v1\AuthController@register');
-    
+    Route::post('reset-passowrd-submit','App\Http\Controllers\api\v1\ResetPasswordController@resetPassword' );
+    Route::post('confirm-reset','App\Http\Controllers\api\v1\ResetPasswordController@confirmReset' );
+
+
     Route::group(['middleware' => ['auth:api']], function () {
         Route::post('logout', 'App\Http\Controllers\api\v1\AuthController@logout');
     });
