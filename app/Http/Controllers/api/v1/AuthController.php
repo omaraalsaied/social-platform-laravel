@@ -71,7 +71,11 @@ class AuthController extends Controller
         $user = Socialite::driver($provider)->user();
         $authUser = $this->findOrCreateUser($user, $provider);
         Auth::login($authUser, true);
-        return redirect($this->redirectTo);
+        $token = $authUser->createToken('Personal Access Token')->accessToken;
+        return response()->json([
+            'user'=> $authUser['name'],
+            'token'=> $token
+        ]);
     }
 
     public function findOrCreateUser($user, $provider)
@@ -88,8 +92,6 @@ class AuthController extends Controller
         ]);
         return $authUser;
     }
-
-    protected $redirectTo = RouteServiceProvider::HOME;
 
 
 }
