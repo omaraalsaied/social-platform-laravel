@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Laravel\Socialite\Facades\Socialite;
+use App\Providers\RouteServiceProvider;
 
 class AuthController extends Controller
 {
@@ -46,7 +48,8 @@ class AuthController extends Controller
 
     }
 
-    public function logout (Request $request){
+    public function logout (Request $request)
+    {
         if (Auth::user()) {
             $request->user()->token()->revoke();
 
@@ -56,4 +59,37 @@ class AuthController extends Controller
             ], 200);
         }
     }
+
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->redirect();
+    }
+
+
+    public function handleProviderCallback($provider)
+    {
+        $user = Socialite::driver($provider)->user();
+        $authUser = $this->findOrCreateUser($user, $provider);
+        Auth::login($authUser, true);
+        return redirect($this->redirectTo);
+    }
+
+    public function findOrCreateUser($user, $provider)
+    {
+        $authUser = User::where('provider_id', $user->id)->first();
+        if ($authUser) {
+            return $authUser;
+        }
+        $authUser = User::create([
+            'name'     => $user->name,
+            'email'    => $user->email,
+            'provider_name' => $provider,
+            'provider_id' => $user->id
+        ]);
+        return $authUser;
+    }
+
+    protected $redirectTo = RouteServiceProvider::HOME;
+
+
 }
