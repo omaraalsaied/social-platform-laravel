@@ -37,6 +37,9 @@ class User extends Authenticatable implements CanResetPassword
     protected $hidden = [
         'password',
         'remember_token',
+        'provider_name',
+        'provider_id',
+        'email_verified_at',
     ];
 
     /**
@@ -48,4 +51,13 @@ class User extends Authenticatable implements CanResetPassword
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function posts ()
+    {
+        return $this->hasMany(Post::class);
+    }
+    public function comments ()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

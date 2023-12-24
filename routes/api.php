@@ -27,10 +27,31 @@ Route::group(['prefix' => 'v1/'], function () {
     });
 
 
-    Route::group(['prefix' => 'users/', 'middleware' => ['auth:api']], function () {
-        Route::get('{id}', 'App\Http\Controllers\api\v1\UserController@view');
-        Route::patch('edit/{id}', 'App\Http\Controllers\api\v1\UserController@edit');
-        Route::patch('update/{id}', 'App\Http\Controllers\api\v1\UserController@update');
+    Route::group(['middleware' => ['auth:api']], function () {
+        Route::group(['prefix' => 'users/'], function () {
+            Route::get('{id}', 'App\Http\Controllers\api\v1\UserController@view');
+            Route::patch('edit/{id}', 'App\Http\Controllers\api\v1\UserController@edit');
+            Route::patch('update/{id}', 'App\Http\Controllers\api\v1\UserController@update');
+        });
+
+        Route::group(['prefix' => 'posts'], function () {
+            Route::get('/','App\Http\Controllers\api\v1\PostController@index');
+            Route::get('/{id}','App\Http\Controllers\api\v1\PostController@show');
+            Route::post('store','App\Http\Controllers\api\v1\PostController@store');
+            Route::patch('update/{id}','App\Http\Controllers\api\v1\PostController@update');
+            Route::delete('destroy/{id}','App\Http\Controllers\api\v1\PostController@destroy');
+        });
+
+        Route::group(['prefix' => 'comments'], function () {
+            Route::get('/{id}','App\Http\Controllers\api\v1\CommentController@show');
+            Route::post('store/{post_id}','App\Http\Controllers\api\v1\CommentController@store');
+            Route::patch('update/{id}','App\Http\Controllers\api\v1\CommentController@update');
+            Route::delete('destroy/{id}','App\Http\Controllers\api\v1\CommentController@destroy');
+        });
     });
+
+
+
+
 
 });
