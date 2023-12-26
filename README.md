@@ -22,6 +22,7 @@ open your .env file and place the right configuration for Database connection
 
 ```bash
 php artisan migrate
+php artisan db:seed
 ```
 
 and to run your application 
