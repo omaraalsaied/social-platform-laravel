@@ -32,7 +32,7 @@ class CommentController extends Controller
      */
     public function store(Request $request, $post_id)
     {
-        $post = Post::findorFail($post_id);
+        $post = Post::with('comments')->findorFail($post_id);
         $request->validate([
             'body' => 'required|max:255'
         ]);
@@ -42,10 +42,10 @@ class CommentController extends Controller
         $comment->user_id = Auth::user()->id;
         $comment->body = $request->body;
         $comment->save();
-
         return response()->json([
             'status' => 'success',
-            'message' => 'Your comment has been added successfully'
+            'message' => 'Your comment has been added successfully',
+            'post'      =>$post
         ], 200);
 
     }
@@ -55,7 +55,7 @@ class CommentController extends Controller
      */
     public function show($id)
     {
-        $comment = Comment::with(['user:id,name,email,bio,profile_pic'])->findOrFail($id);
+        $comment = Comment::with(['user:id,name,email,bio,profile_pic'])->withCount('likers')->findOrFail($id);
         return response()->json([
             "status" => "success",
             "comment" => $comment
@@ -122,5 +122,55 @@ class CommentController extends Controller
             "message" => "Your comment has been Deleted Successfully",
 
         ]);
+    }
+
+    public function userInteraction(Request $request, $id)
+    {
+        $comment = comment::findOrFail($id);
+        $user = Auth::user();
+        $request->validate([
+            'like' => 'required|bool'
+        ]);
+        if($request->like == true && $user->hasLiked($comment))
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => "you already liked this comment !"
+            ], 406);
+        } else if ($request->like == false && !$user->hasLiked($comment))
+        {
+            return response()->json([
+                "status" => "error",
+                "message" => "you haven't liked this comment !"
+            ], 406);
+        }
+        if($request->like == true) {
+            $user->like($comment);
+            $comment->likes_count = $comment->likersCount();
+            return response()->json([
+                "status" => "sucess",
+                "message" => "comment liked !",
+                "comment" => $comment
+            ], 200);
+        }
+
+
+        $user->unlike($comment);
+        $comment->likes_count = $comment->likersCount();
+        return response()->json([
+                "status" => "sucess",
+                "message" => "comment unliked !",
+                "comment" => $comment
+            ], 200);
+    }
+
+    public function getLikers($id)
+    {
+        $comment = Comment::findorFail($id);
+        return response()->json([
+            'count' => $comment->likersCount(),
+            'likers' => $comment->fans()->get()
+        ]);
+
     }
 }

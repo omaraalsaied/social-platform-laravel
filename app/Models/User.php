@@ -8,10 +8,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Contracts\Auth\CanResetPassword;
+use Multicaret\Acquaintances\Traits\Friendable;
+use Multicaret\Acquaintances\Traits\CanFollow;
+use Multicaret\Acquaintances\Traits\CanBeFollowed;
+use Multicaret\Acquaintances\Traits\CanLike;
+
 
 class User extends Authenticatable implements CanResetPassword
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable,Friendable,CanFollow,CanBeFollowed,CanLike;
 
     /**
      * The attributes that are mass assignable.
@@ -60,4 +65,8 @@ class User extends Authenticatable implements CanResetPassword
     {
         return $this->hasMany(Comment::class);
     }
-}
+    public function sharedPosts()
+    {
+        return $this->hasMany(Share::class)->with('post.user');
+    }
+    }

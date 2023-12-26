@@ -30,16 +30,20 @@ Route::group(['prefix' => 'v1/'], function () {
     Route::group(['middleware' => ['auth:api']], function () {
         Route::group(['prefix' => 'users/'], function () {
             Route::get('{id}', 'App\Http\Controllers\api\v1\UserController@view');
-            Route::patch('edit/{id}', 'App\Http\Controllers\api\v1\UserController@edit');
+            Route::post('search','App\Http\Controllers\api\v1\UserController@search');
             Route::patch('update/{id}', 'App\Http\Controllers\api\v1\UserController@update');
         });
-
+        Route::get('/profile', 'App\Http\Controllers\api\v1\UserController@profile');
+        
         Route::group(['prefix' => 'posts'], function () {
             Route::get('/','App\Http\Controllers\api\v1\PostController@index');
             Route::get('/{id}','App\Http\Controllers\api\v1\PostController@show');
             Route::post('store','App\Http\Controllers\api\v1\PostController@store');
             Route::patch('update/{id}','App\Http\Controllers\api\v1\PostController@update');
             Route::delete('destroy/{id}','App\Http\Controllers\api\v1\PostController@destroy');
+            Route::post('interact/{id}', 'App\Http\Controllers\api\v1\PostController@userInteraction');
+            Route::get('likers/{id}', 'App\Http\Controllers\api\v1\PostController@getLikers');
+            Route::post('share/{id}', 'App\Http\Controllers\api\v1\PostController@share');
         });
 
         Route::group(['prefix' => 'comments'], function () {
@@ -47,7 +51,19 @@ Route::group(['prefix' => 'v1/'], function () {
             Route::post('store/{post_id}','App\Http\Controllers\api\v1\CommentController@store');
             Route::patch('update/{id}','App\Http\Controllers\api\v1\CommentController@update');
             Route::delete('destroy/{id}','App\Http\Controllers\api\v1\CommentController@destroy');
+            Route::post('interact/{id}', 'App\Http\Controllers\api\v1\CommentController@userInteraction');
+            Route::get('likers/{id}', 'App\Http\Controllers\api\v1\CommentController@getLikers');
+
         });
+
+        Route::group(['prefix' => 'friendships'], function () {
+            Route::get('pending-requests','App\Http\Controllers\api\v1\UserController@getFriendRequests');
+            Route::post('send-request/{id}','App\Http\Controllers\api\v1\UserController@sendFriendRequest');
+            Route::post('respond-to-request/{id}','App\Http\Controllers\api\v1\UserController@RespondToFriendRequest');
+            Route::get('list','App\Http\Controllers\api\v1\UserController@listFriends');
+            Route::post('manage/{id}','App\Http\Controllers\api\v1\UserController@manageFriend');
+        });
+
     });
 
 

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Multicaret\Acquaintances\Traits\CanBeLiked;
+
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory,CanBeLiked;
 
     protected $fillable = [
         "title",
@@ -15,6 +17,9 @@ class Post extends Model
         "user_id"
     ];
 
+    protected $default = [
+        'interactions'
+    ];
 
     public function user()
     {
@@ -24,6 +29,14 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+    public function likes_count()
+    {
+        return $this->likersCount();
+    }
+    public function share()
+    {
+        return $this->hasMany(Share::class);
     }
 
 }
