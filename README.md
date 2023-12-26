@@ -1,66 +1,293 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## API Reference
 
-## About Laravel
+### Auth Routes
+#### Registering new users
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```http
+  POST /api/v1/auth/register
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `name` | `string` | **Required**. |
+| `email` | ` email`   | **Required**.  |
+| `password` | `string` | **Required**.  |
+| `phone` | `string` | **Required**.  |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#### User Login
+returns token that the user will use in all of authenticated routes.
 
-## Learning Laravel
+```http
+  POST /api/v1/auth/login
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `email`      | `email` | **Required**.  |
+| `paswword`      | `string` | **Required**.  |
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Social Login 
+#### only github is supported now
+social login is implemented using: https://github.com/laravel/socialite
 
-## Laravel Sponsors
+the package makes it easy to implement login\register with social platforms, for sake of saving time i just made it with github.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```http
+  GET /api/v1/auth/login/{provider}
+```
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `provider`      | `string` | **Required**.  |
 
-### Premium Partners
+the package redirects the user to the Signin page of the provider (platform he wishes to sign in\up with) and after the user auhorizes his data access the application redirects to callback endpoint where it's checked if the user exists so he should be logged in or he's a new user so he should be registered.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+#### note that both endpoints of social login should be used with web browsers & not Postman
+```http
+    GET /api/v1/auth/login/{provider}
+```
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### password resetting
+this route is for the server to handle sending a reset password email to the user.
 
-## Code of Conduct
+##### for quicker testing of this endpoint, in .env file make the ```MAIL_MAILER=log``` and you'll find the password reset mail in your application's logs
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+```http
+  POST /api/v1/auth/reset-passowrd-submit
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `email`      | `email` | **Required**.  |
 
-## License
+in the email there's a link to a local view that asks the user to input new password and submits it to this endpoint to validate and update the user
+```http
+ POST /api/v1/auth/confirm-reset
+```
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `email`      | `email` | **Required**.  |
+| `token`      | `string` | **Required**.  |
+| `password`      | `string` | **Required**.  |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+token is created by the server to authenticate the process and prevent data forgery.
+
+
+#### Logout
+```http
+ POST /api/v1/auth/logout
+```
+this route demands the user to be authenticated. don't forget to add the token in the Postman Headers.
+
+
+### User endpoints
+
+```http 
+    GET /api/v1/users/{id}
+```
+this endpoint is used to view any user's profile
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**.  |
+
+it shows the user's profile with posts he wrote and shared posts.
+
+
+```http 
+    POST /api/v1/users/search
+```
+this endpoint is used to view any user's profile
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `search_param`      | `string` | **Required**.  |
+
+this endpoint is used to search users by querying the database for any near matches of the search_param against name,phone & bio.
+
+```http 
+    POST /api/v1/users/update
+```
+this endpoint is used to view any user's profile
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `name`        | `string`      | **string,max:255**.  |
+| `email`       | `string`      | **string,email,max:255**.  |
+| `paswword`    | `string`      | **string,min:8**.  |
+| `phone`       | `string`      | **string,min:11,max:13**.  |
+| `profile_pic` | `string`      | **string,max:255**.  |
+| `bio`         | `string`      | **string,max:255**.  |
+
+this endpoint is used to update the user's data.
+
+
+```http 
+    GET /api/v1/user/profile
+```
+The endpoint is used to make the user view his own profile with his data and posts
+
+
+### Posts endpoint
+
+#### Feed
+```http 
+    GET /api/v1/posts
+```
+this is index of posts simillar to a news feed endpoint where posts appear with likes & comments count.
+
+#### show a post
+```http 
+    GET /api/v1/posts/{id}
+```
+views the post with the id in the url with the posts comments and likes on the post and each comment
+
+
+#### add a post
+```http 
+    POST /api/v1/posts/
+```
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `title`      | `string` | **Required**.  |
+| `body`        | `string` | **Required**.  |
+
+
+#### update post
+user can only update posts of his own
+```http 
+    POST /api/v1/posts/update{id}
+```
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `title`      | `string` | **Required**.  |
+| `body`        | `string` | **Required**.  |
+
+#### delete post
+user can only delete posts of his own
+
+```http 
+    DELETE /api/v1/posts/destroy/{id}
+```
+
+#### Like or Unlike a post
+Users can Interact with posts. The interactions between users and posts and users among eachother like sending friend requests is implemented by laravel-acquaintances package :  https://github.com/multicaret/laravel-acquaintances
+
+```http 
+    POST /api/v1/posts/interact/{id}
+```
+
+ Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `like`      | `boolean` | **Required**.  |
+
+user can like a post and unlike it if he did like it.
+user can't like a post twice or unlike it twice.
+
+#### Who liked this Post?
+
+to view users who like this post
+
+```http 
+    GET /api/v1/posts/likers/{id}
+```
+
+#### Sharing a post to your profile
+
+```http 
+    POST /api/v1/posts/share/{id}
+```
+User can share other users posts on his profile or even his own posts.
+
+
+### Comments on Posts
+
+#### Add a comment on Post
+```http 
+    POST /api/v1/comments/store/{post_id}
+```
+ Parameter | Type     | Description                       |
+| :--------    | :------- | :-------------------------------- |
+| `body`      | `string` | **Required**.  |
+
+#### view a comment on Post
+```http 
+    GET /api/v1/comments/{id}
+```
+ Parameter | Type     | Description                       |
+| :--------    | :------- | :-------------------------------- |
+| `body`      | `string` | **Required**.  |
+
+
+#### update a comment on Post
+
+```http 
+    PATCH /api/v1/comments/{id}
+```
+ Parameter | Type     | Description                       |
+| :--------    | :------- | :-------------------------------- |
+| `body`      | `string` | **Required**.  |
+
+
+#### delete a comment on Post
+
+```http 
+    DELETE /api/v1/comments/destroy/{id}
+```
+
+#### liking a Comment
+```http 
+    POST /api/v1/comments/interact/{id}
+```
+
+#### Who liked this Comment
+
+```http 
+    GET /api/v1/comments/likers/{id}
+```
+
+### Friendships Between Users
+users can send friend requests to other ones. the reciepients can accepts or decline the friend requests.
+
+#### Sending A friend request
+
+```http 
+    POST /api/v1/friendships/send-request/{id}
+```
+the authenticated user can send friend requests to other users with the {id} in the url.
+
+#### View pending friend request
+
+```http 
+    POST /api/v1/friendships/send-request/{id}
+```
+the authenticated user can send friend requests to other users with the {id} in the url.
+
+#### respond to a pending friend request
+
+```http 
+    POST /api/v1/friendships/respond-to-request/{id}
+```
+the authenticated user can accept or decline the friend request sent from the user with the {id} mentioned in the url
+
+
+#### respond to a pending friend request
+
+```http 
+    GET /api/v1/friendships/list
+```
+returns all friends that the user has 
+
+### Managing a user/friend
+
+```http 
+    POST /api/v1/friendships/manage/{id}
+```
+
+user can manage any other user "he can unfriend them if they're friends, block them or unblock them" the action is taken upon the user with the {id} in url
+
+ Parameter      | Type     | Description                       |
+| :--------     | :-------  | :-------------------------------- |
+| `action`      | `[unfriend,block,unblock]` | **Required**.  |
+
+
