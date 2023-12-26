@@ -38,7 +38,7 @@ Route::group(['prefix' => 'v1/'], function () {
         Route::group(['prefix' => 'posts'], function () {
             Route::get('/','App\Http\Controllers\api\v1\PostController@index');
             Route::get('/{id}','App\Http\Controllers\api\v1\PostController@show');
-            Route::post('store','App\Http\Controllers\api\v1\PostController@store');
+            Route::post('/','App\Http\Controllers\api\v1\PostController@store');
             Route::patch('update/{id}','App\Http\Controllers\api\v1\PostController@update');
             Route::delete('destroy/{id}','App\Http\Controllers\api\v1\PostController@destroy');
             Route::post('interact/{id}', 'App\Http\Controllers\api\v1\PostController@userInteraction');
