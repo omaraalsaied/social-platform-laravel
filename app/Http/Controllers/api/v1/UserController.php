@@ -23,14 +23,9 @@ class UserController extends Controller
     }
 
 
-    public function update(Request $request,  $id)
+    public function update(Request $request)
     {
-        if(Auth::user()->id !==(int) $id )
-        {
-            return response()->json([
-                'message'=> 'Unauthorized'
-            ], 401);
-        }
+        $user = Auth::user();
         $valid_data = $request->validate([
             'name'                  => 'string|max:255',
             'email'                 => 'string|email|max:255',
@@ -39,7 +34,6 @@ class UserController extends Controller
             'profile_pic'           => 'string|max:255',
             'bio'                   => 'string|max:255',
         ]);
-        $user = User::findorfail($id);
         $user->update($valid_data);
         return response()->json([
             "message" => "success",

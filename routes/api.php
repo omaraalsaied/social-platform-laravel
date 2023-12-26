@@ -31,10 +31,10 @@ Route::group(['prefix' => 'v1/'], function () {
         Route::group(['prefix' => 'users/'], function () {
             Route::get('{id}', 'App\Http\Controllers\api\v1\UserController@view');
             Route::post('search','App\Http\Controllers\api\v1\UserController@search');
-            Route::patch('update/{id}', 'App\Http\Controllers\api\v1\UserController@update');
+            Route::patch('update', 'App\Http\Controllers\api\v1\UserController@update');
         });
         Route::get('/profile', 'App\Http\Controllers\api\v1\UserController@profile');
-        
+
         Route::group(['prefix' => 'posts'], function () {
             Route::get('/','App\Http\Controllers\api\v1\PostController@index');
             Route::get('/{id}','App\Http\Controllers\api\v1\PostController@show');
