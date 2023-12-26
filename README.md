@@ -1,4 +1,41 @@
 
+# Laravel Social Platform
+
+this is a social platform APIs Where you can do basic authentication, posting, commenting, managing friends & sharing posts on your profile.
+
+## Installation
+
+clone this project using command line
+
+```bash
+  git clone https://github.com/omaraalsaied/social-platform-laravel.git
+  
+  cd social-platform-laravel
+
+  composer install 
+
+  php artisan key:generate
+
+```
+
+open your .env file and place the right configuration for Database connection
+
+```bash
+php artisan migrate
+```
+
+and to run your application 
+
+```bash
+php artisan ser
+```
+
+
+for testing the APIs you'll need Postman
+
+for better results while using the endpoints in Postman make sure to add a header with the key "Accept" and value of "applicatoin/json" 
+
+
 ## API Reference
 
 ### Auth Routes
